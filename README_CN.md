@@ -223,6 +223,9 @@ BASE_URL=https://b.nextweb.fun/api/proxy
 
 ## 部署
 
+npm install -g pm2
+> yarn install && yarn build && pm2 start "yarn start"
+
 ### 容器部署 （推荐）
 
 > Docker 版本需要在 20 及其以上，否则会提示找不到镜像。
