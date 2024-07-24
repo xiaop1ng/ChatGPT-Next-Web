@@ -48,7 +48,7 @@ interface RequestParam {
 }
 interface RequestPayload {
   model: string;
-  input: RequestInput;
+  input: any;
   parameters: RequestParam;
 }
 
@@ -80,6 +80,10 @@ export class QwenApi implements LLMApi {
   }
 
   extractMessage(res: any) {
+    // 兼容应用的响应
+    if (res?.output?.text) {
+      return res.output.text
+    }
     return res?.output?.choices?.at(0)?.message?.content ?? "";
   }
 
@@ -98,7 +102,17 @@ export class QwenApi implements LLMApi {
     };
 
     const shouldStream = !!options.config.stream;
-    const requestPayload: RequestPayload = {
+    // 不使用通用模型接口时，使用应用的入参
+    const isCustomerApp = getClientConfig()?.alibabaPath;
+    
+    const requestPayload: any = isCustomerApp ? {
+      input: {
+        prompt: getMessageTextContent(options.messages[options.messages.length-1])
+      },
+      parameters: {
+      },
+      debug: {}
+    } : {
       model: modelConfig.model,
       input: {
         messages,
@@ -135,6 +149,7 @@ export class QwenApi implements LLMApi {
 
       if (shouldStream) {
         let responseText = "";
+        let lastRemainText = "";
         let remainText = "";
         let finished = false;
 
@@ -221,12 +236,20 @@ export class QwenApi implements LLMApi {
             const text = msg.data;
             try {
               const json = JSON.parse(text);
-              const choices = json.output.choices as Array<{
-                message: { content: string };
-              }>;
-              const delta = choices[0]?.message?.content;
-              if (delta) {
-                remainText += delta;
+              if (json?.output?.choices) {
+                const choices = json.output.choices as Array<{
+                  message: { content: string };
+                }>;
+                const delta = choices[0]?.message?.content;
+                if (delta) {
+                  remainText += delta;
+                }
+              } else if (json?.output?.text) {
+                const delta = json.output.text.substring(lastRemainText.length)
+                if (delta) {
+                  remainText += delta;
+                }
+                lastRemainText = json.output.text
               }
             } catch (e) {
               console.error("[Request] parse error", text, msg);

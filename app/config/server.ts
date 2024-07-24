@@ -51,6 +51,7 @@ declare global {
 
       // alibaba only
       ALIBABA_URL?: string;
+      ALIBABA_PATH?: string;
       ALIBABA_API_KEY?: string;
 
       // custom template for preprocessing user input
@@ -156,6 +157,7 @@ export const getServerSideConfig = () => {
 
     isAlibaba,
     alibabaUrl: process.env.ALIBABA_URL,
+    alibabaPath: process.env.ALIBABA_PATH,
     alibabaApiKey: getApiKey(process.env.ALIBABA_API_KEY),
 
     gtmId: process.env.GTM_ID,
