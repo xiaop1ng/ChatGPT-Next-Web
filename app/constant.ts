@@ -1,4 +1,4 @@
-export const OWNER = "Yidadaa";
+export const OWNER = "xiaop1ng";
 export const REPO = "ChatGPT-Next-Web";
 export const REPO_URL = `https://github.com/${OWNER}/${REPO}`;
 export const ISSUE_URL = `https://github.com/${OWNER}/${REPO}/issues`;
@@ -268,6 +268,7 @@ const alibabaModes = [
   "qwen-max-0403",
   "qwen-max-0107",
   "qwen-max-longcontext",
+  "qwen-1.8b-chat",
 ];
 
 export const DEFAULT_MODELS = [
