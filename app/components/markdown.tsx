@@ -140,7 +140,7 @@ function _MarkDownContent(props: { content: string }) {
     return escapeBrackets(escapeDollarNumber(props.content));
   }, [props.content]);
 
-  const handleClick = (event) => {
+  const handleClick = (event: any) => {
     // TODO: 引用按钮点击事件，弹窗显示引用内容
     console.log(event.target.getAttribute('text'))
   }
