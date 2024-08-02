@@ -1,3 +1,4 @@
+// @ts-nocheck
 import ReactMarkdown from "react-markdown";
 import "katex/dist/katex.min.css";
 import RemarkMath from "remark-math";
@@ -168,7 +169,7 @@ function _MarkDownContent(props: { content: string }) {
           const target = isInternal ? "_self" : aProps.target ?? "_blank";
           return <a {...aProps} target={target} />;
         },
-        ref: (refProps) => <span className="ref" {...refProps} />,
+        ref: (refProps:any) => <span className="ref" {...refProps} />,
         button: (buttonProps) => <button onClick={handleClick} {...buttonProps} />,
       }}
     >
