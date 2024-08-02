@@ -248,6 +248,10 @@ export function getHeaders() {
     );
   }
 
+  const appIdx = localStorage.getItem("App-Idx");
+  if (appIdx && appIdx !== "-1") {
+    headers["App-Idx"] = appIdx;
+  }
   return headers;
 }
 

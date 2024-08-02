@@ -11,7 +11,7 @@ export const getBuildConfig = () => {
   const buildMode = process.env.BUILD_MODE ?? "standalone";
   const isApp = !!process.env.BUILD_APP;
   const version = "v" + tauriConfig.package.version;
-  const alibabaPath = process.env.ALIBABA_PATH ?? ""
+  const alibabaPath = process.env.ALIBABA_PATH ?? "";
 
   const commitInfo = (() => {
     try {

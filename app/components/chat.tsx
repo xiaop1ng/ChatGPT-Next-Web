@@ -81,7 +81,7 @@ import {
   showPrompt,
   showToast,
 } from "./ui-lib";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   CHAT_PAGE_SIZE,
   LAST_INPUT_KEY,
@@ -497,11 +497,11 @@ export function ChatActions(props: {
         session.mask.modelConfig.providerName = nextModel?.provider
           ?.providerName as ServiceProvider;
       });
-      showToast(
-        nextModel?.provider?.providerName == "ByteDance"
-          ? nextModel.displayName
-          : nextModel.name,
-      );
+      // showToast(
+      //   nextModel?.provider?.providerName == "ByteDance"
+      //     ? nextModel.displayName
+      //     : nextModel.name,
+      // );
     }
   }, [chatStore, currentModel, models]);
 
@@ -581,11 +581,11 @@ export function ChatActions(props: {
         }}
       />
 
-      <ChatAction
+      {/* <ChatAction
         onClick={() => setShowModelSelector(true)}
         text={currentModelName}
         icon={<RobotIcon />}
-      />
+      /> */}
 
       {showModelSelector && (
         <Selector
@@ -1598,5 +1598,11 @@ function _Chat() {
 export function Chat() {
   const chatStore = useChatStore();
   const sessionIndex = chatStore.currentSessionIndex;
+  const params = useParams();
+  if (params?.idx || params?.idx === "0") {
+    localStorage.setItem("App-Idx", params.idx);
+  } else {
+    // localStorage.setItem("App-Idx", "-1");
+  }
   return <_Chat key={sessionIndex}></_Chat>;
 }

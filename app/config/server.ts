@@ -123,6 +123,15 @@ export const getServerSideConfig = () => {
   //   `[Server Config] using ${randomIndex + 1} of ${apiKeys.length} api key`,
   // );
 
+  const alibabaApps = process.env.ALIBABA_APPS?.split(",")?.map(item => {
+    return {
+      appName: item.split(":")[0],
+      appKey: item.split(":")[1],
+      appId: item.split(":")[2],
+    }
+  }) ?? [];
+
+
   const allowedWebDevEndpoints = (
     process.env.WHITE_WEBDEV_ENDPOINTS ?? ""
   ).split(",");
@@ -159,6 +168,7 @@ export const getServerSideConfig = () => {
     alibabaUrl: process.env.ALIBABA_URL,
     alibabaPath: process.env.ALIBABA_PATH,
     alibabaApiKey: getApiKey(process.env.ALIBABA_API_KEY),
+    alibabaApps: alibabaApps,
 
     gtmId: process.env.GTM_ID,
 

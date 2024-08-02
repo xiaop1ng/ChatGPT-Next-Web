@@ -4,6 +4,7 @@ import RemarkMath from "remark-math";
 import RemarkBreaks from "remark-breaks";
 import RehypeKatex from "rehype-katex";
 import RemarkGfm from "remark-gfm";
+import RehypeRaw from 'rehype-raw';
 import RehypeHighlight from "rehype-highlight";
 import { useRef, useState, RefObject, useEffect, useMemo } from "react";
 import { copyToClipboard } from "../utils";
@@ -139,10 +140,16 @@ function _MarkDownContent(props: { content: string }) {
     return escapeBrackets(escapeDollarNumber(props.content));
   }, [props.content]);
 
+  const handleClick = (event) => {
+    // TODO: 引用按钮点击事件，弹窗显示引用内容
+    console.log(event.target.getAttribute('text'))
+  }
+
   return (
     <ReactMarkdown
       remarkPlugins={[RemarkMath, RemarkGfm, RemarkBreaks]}
       rehypePlugins={[
+        [RehypeRaw],
         RehypeKatex,
         [
           RehypeHighlight,
@@ -161,6 +168,8 @@ function _MarkDownContent(props: { content: string }) {
           const target = isInternal ? "_self" : aProps.target ?? "_blank";
           return <a {...aProps} target={target} />;
         },
+        ref: (refProps) => <span className="ref" {...refProps} />,
+        button: (buttonProps) => <button onClick={handleClick} {...buttonProps} />,
       }}
     >
       {escapedContent}

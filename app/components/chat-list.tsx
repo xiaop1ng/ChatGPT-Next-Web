@@ -48,7 +48,7 @@ export function ChatItem(props: {
         <div
           className={`${styles["chat-item"]} ${
             props.selected &&
-            (currentPath === Path.Chat || currentPath === Path.Home) &&
+            (currentPath.startsWith( Path.Chat ) || currentPath === Path.Home) &&
             styles["chat-item-selected"]
           }`}
           onClick={props.onClick}

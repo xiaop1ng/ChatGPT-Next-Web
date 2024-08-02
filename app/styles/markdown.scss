@@ -1127,6 +1127,22 @@
   background-color: var(--white);
 }
 
+.markdown-body .ref {
+  color: rgba(135, 138, 171, .8);
+}
+
+.markdown-body button {
+  border: .5px solid #9296a9;
+  border-radius: 4px;
+  color: #2c2c73;
+  background-color: white;
+  font-size: 12px;
+  height: 28px;
+  line-height: 28px;
+  margin: 0;
+  padding: 0 8px;
+}
+
 #dmermaid {
   display: none;
 }
