@@ -83,8 +83,8 @@ async function request(req: NextRequest) {
   // 如果设置了 APPS，使用 APPS 里面的 api_key app_id
   if (serverConfig.alibabaApps?.length > 0) {
     const appIdx = req.headers.get("App-Idx");
-    if (appIdx && appIdx !== "-1" && appIdx < serverConfig.alibabaApps.length) {
-      const app = serverConfig.alibabaApps[appIdx];
+    if (appIdx && appIdx !== "-1" && parseInt(appIdx) < serverConfig.alibabaApps.length) {
+      const app = serverConfig.alibabaApps[parseInt(appIdx)];
       path = `/v1/apps/${app.appId}/completion`
       req.headers.set("Authorization", `Bearer ${app.appKey}`)
     }
