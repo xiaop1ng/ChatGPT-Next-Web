@@ -250,6 +250,16 @@ export class QwenApi implements LLMApi {
                   remainText += delta;
                 }
                 lastRemainText = json.output.text
+
+                if (json?.output?.finish_reason === "stop") {
+                  // 输出完成后检查是否存在引用信息
+                  if(json?.output?.doc_references?.length > 0) {
+                    const deltaRef = "\n\n<ref>回答来源：</ref>\n" + json.output.doc_references.map((itemRef: any) => {
+                      return `<button text="${itemRef.text}" title="${itemRef.doc_name}">[${itemRef.index_id}]${itemRef.doc_name}</button>`
+                    }).join("\n")
+                    remainText += deltaRef
+                  }
+                }
               }
             } catch (e) {
               console.error("[Request] parse error", text, msg);

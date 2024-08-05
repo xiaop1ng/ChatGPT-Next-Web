@@ -14,7 +14,10 @@ import mermaid from "mermaid";
 import LoadingIcon from "../icons/three-dots.svg";
 import React from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { showImageModal } from "./ui-lib";
+import { showImageModal, showModal } from "./ui-lib";
+import { IconButton } from "./button";
+import CopyIcon from "../icons/copy.svg";
+import Locale from "../locales";
 
 export function Mermaid(props: { code: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -142,8 +145,25 @@ function _MarkDownContent(props: { content: string }) {
   }, [props.content]);
 
   const handleClick = (event: any) => {
-    // TODO: 引用按钮点击事件，弹窗显示引用内容
-    console.log(event.target.getAttribute('text'))
+    // 引用按钮点击事件，弹窗显示引用内容
+    const title = event.target.getAttribute('title');
+    const targetText = event.target.getAttribute('text');
+    showModal({
+      title: "引用文档-" + title,
+      children: [
+        <div key="text">
+          {targetText}
+        </div>,
+      ],
+      actions: [
+        <IconButton
+          icon={<CopyIcon />}
+          text={Locale.Chat.Actions.Copy}
+          key="copy"
+          onClick={() => copyToClipboard(targetText)}
+        />,
+      ],
+    });
   }
 
   return (
