@@ -8,6 +8,13 @@ export const getBuildConfig = () => {
     );
   }
 
+  const alibabaApps = process.env.ALIBABA_APPS?.split(",")?.map(item => {
+    return {
+      appName: item.split(":")[0],
+      // appKey: item.split(":")[1],
+      // appId: item.split(":")[2],
+    }
+  }) ?? [];
   const buildMode = process.env.BUILD_MODE ?? "standalone";
   const isApp = !!process.env.BUILD_APP;
   const version = "v" + tauriConfig.package.version;
@@ -41,6 +48,7 @@ export const getBuildConfig = () => {
     buildMode,
     isApp,
     alibabaPath,
+    alibabaApps,
     template: process.env.DEFAULT_INPUT_TEMPLATE ?? DEFAULT_INPUT_TEMPLATE,
   };
 };

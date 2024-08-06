@@ -14,6 +14,7 @@ import {
   GEMINI_SUMMARIZE_MODEL,
 } from "../constant";
 import { getClientApi } from "../client/api";
+import { getClientConfig } from "@/app/config/client";
 import type {
   ClientApi,
   RequestMessage,
@@ -549,6 +550,17 @@ export const useChatStore = createPersistStore(
 
         // should summarize topic after chating more than 50 words
         const SUMMARIZE_MIN_LEN = 50;
+
+        const alibabaApps = getClientConfig()?.alibabaApps || [];
+        const appIdx = localStorage.getItem("App-Idx");
+        if (appIdx && appIdx !== "-1" && alibabaApps.length > parseInt(appIdx)) {
+          const appName = alibabaApps[parseInt(appIdx)]['appName'];
+          if (appName) {
+            // setting session title
+            session.topic = trimTopic(appName);
+          }
+        }
+
         if (
           config.enableAutoGenerateTitle &&
           session.topic === DEFAULT_TOPIC &&
