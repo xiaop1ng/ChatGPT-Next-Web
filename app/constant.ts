@@ -61,6 +61,7 @@ export enum StoreKey {
   Config = "app-config",
   Mask = "mask-store",
   Prompt = "prompt-store",
+  App = "app-store",
   Update = "chat-update",
   Sync = "sync",
 }
@@ -327,15 +328,15 @@ export const DEFAULT_MODELS = [
   //     providerType: "baidu",
   //   },
   // })),
-  // ...bytedanceModels.map((name) => ({
-  //   name,
-  //   available: true,
-  //   provider: {
-  //     id: "bytedance",
-  //     providerName: "ByteDance",
-  //     providerType: "bytedance",
-  //   },
-  // })),
+  ...bytedanceModels.map((name) => ({
+    name,
+    available: true,
+    provider: {
+      id: "bytedance",
+      providerName: "ByteDance",
+      providerType: "bytedance",
+    },
+  })),
 ] as const;
 
 export const CHAT_PAGE_SIZE = 15;

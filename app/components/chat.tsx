@@ -8,6 +8,7 @@ import React, {
   Fragment,
   RefObject,
 } from "react";
+import { Link } from "react-router-dom";
 
 import SendWhiteIcon from "../icons/send-white.svg";
 import BrainIcon from "../icons/brain.svg";
@@ -443,6 +444,9 @@ export function ChatActions(props: {
     config.update((config) => (config.theme = nextTheme));
   }
 
+  const alibabaApps = getClientConfig()?.alibabaApps || [];
+  const appIdx = localStorage.getItem("App-Idx");
+
   // stop all responses
   const couldStop = ChatControllerPool.hasPending();
   const stopAll = () => ChatControllerPool.stopAll();
@@ -586,6 +590,22 @@ export function ChatActions(props: {
         text={currentModelName}
         icon={<RobotIcon />}
       /> */}
+
+      {alibabaApps.map((app, idx) => (
+        <Link
+          to={"/chat/" + idx}
+          className={`${styles["chat-input-app-btn"]} clickable`}
+          style={{
+            borderColor:
+              localStorage.getItem("App-Idx") == "" + idx
+                ? "var(--primary)"
+                : "var(--sgray)",
+          }}
+          key={idx}
+        >
+          <IconButton text={app.appName} className={styles["text"]} />
+        </Link>
+      ))}
 
       {showModelSelector && (
         <Selector

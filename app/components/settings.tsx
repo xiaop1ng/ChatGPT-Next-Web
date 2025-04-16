@@ -231,6 +231,170 @@ function UserPromptModal(props: { onClose?: () => void }) {
   );
 }
 
+function AppsModal(props: { onClose?: () => void }) {
+  const alibabaApps = getClientConfig()?.alibabaApps || [];
+  const [editingAppKey, setEditingAppKey] = useState<string>();
+
+  return (
+    <div className="modal-mask">
+      <Modal
+        title={"应用配置"}
+        onClose={() => props.onClose?.()}
+        actions={[
+          <IconButton
+            key="add"
+            onClick={() => {
+              let newApp = {
+                appName: "请输入应用名称",
+                appKey: "请输入应用Token",
+              };
+              setEditingAppKey(newApp.appKey);
+            }}
+            icon={<AddIcon />}
+            bordered
+            text={Locale.Settings.Prompt.Modal.Add}
+          />,
+        ]}
+      >
+        <div className={styles["user-prompt-modal"]}>
+          <div className={styles["user-prompt-list"]}>
+            {alibabaApps.map((v, _) => (
+              <div
+                className={styles["user-prompt-item"]}
+                key={v.appName ?? v.appKey}
+              >
+                <div className={styles["user-prompt-header"]}>
+                  <div className={styles["user-prompt-title"]}>{v.appName}</div>
+                  <div className={styles["user-prompt-content"] + " one-line"}>
+                    {v.appKey}
+                  </div>
+                </div>
+
+                <div className={styles["user-prompt-buttons"]}>
+                  {
+                    <IconButton
+                      icon={<ClearIcon />}
+                      className={styles["user-prompt-button"]}
+                      onClick={async () => {
+                        console.log("remove app", v.appId);
+                        const formData = new FormData();
+                        formData.append("appId", v.appId);
+                        console.log("formData", formData);
+                        const response = await fetch("/api/app/" + v.appId, {
+                          method: "POST",
+                          body: formData,
+                        });
+                        if (!response.ok) {
+                          throw new Error(await response.text());
+                        }
+                        console.log("response", response);
+                      }}
+                    />
+                  }
+                  {
+                    <IconButton
+                      icon={<EditIcon />}
+                      className={styles["user-prompt-button"]}
+                      onClick={() => setEditingAppKey(v.appId)}
+                    />
+                  }
+                  <IconButton
+                    icon={<CopyIcon />}
+                    className={styles["user-prompt-button"]}
+                    onClick={() => copyToClipboard(v.appName)}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Modal>
+
+      {editingAppKey !== undefined && (
+        <EditAppModal
+          id={editingAppKey!}
+          onClose={() => setEditingAppKey(undefined)}
+        />
+      )}
+    </div>
+  );
+}
+
+function EditAppModal(props: { id: string; onClose: () => void }) {
+  // 使用 useState 管理状态
+  const [newApp, setNewApp] = useState<Record<string, any>>({});
+  // 初始化数据
+  useEffect(() => {
+    if (props.id) {
+      const appData =
+        getClientConfig()?.alibabaApps.find((v) => v.appId === props.id) || {};
+      setNewApp({ ...appData }); // 创建副本避免引用污染
+    }
+  }, [props.id]);
+
+  // 更新状态的方法
+  const updateField = (field: string, value: any) => {
+    setNewApp((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  return (
+    <div className="modal-mask">
+      <Modal
+        title={"编辑应用配置"}
+        onClose={props.onClose}
+        actions={[
+          <IconButton
+            key=""
+            onClick={async () => {
+              newApp.type = "dify";
+              console.log("newApp", newApp);
+              const formData = new FormData();
+              for (const key in newApp) {
+                formData.append(key, newApp[key]);
+              }
+              console.log("formData", formData);
+              const response = await fetch("/api/app", {
+                method: "POST",
+                body: formData,
+              });
+
+              if (!response.ok) {
+                throw new Error(await response.text());
+              }
+              console.log("response", response);
+              // save
+              props.onClose();
+              // 调用保存应用接口
+            }}
+            text={Locale.UI.Confirm}
+            bordered
+          />,
+        ]}
+      >
+        <div className={styles["edit-prompt-modal"]}>
+          <input
+            type="text"
+            value={newApp.appName || ""}
+            className={styles["edit-prompt-title"]}
+            placeholder="请输入应用名称"
+            onChange={(e) => updateField("appName", e.target.value)} // 使用 onChange
+          />
+          <Input
+            value={newApp.appKey || ""}
+            className={styles["edit-prompt-content"]}
+            rows={10}
+            placeholder="请输入应用Token"
+            onChange={(e) => updateField("appKey", e.target.value)} // 使用 onChange
+          />
+        </div>
+      </Modal>
+    </div>
+  );
+}
+
 function DangerItems() {
   const chatStore = useChatStore();
   const appConfig = useAppConfig();
@@ -627,6 +791,7 @@ export function Settings() {
   const builtinCount = SearchService.count.builtin;
   const customCount = promptStore.getUserPrompts().length ?? 0;
   const [shouldShowPromptModal, setShowPromptModal] = useState(false);
+  const [shouldShowAppsModal, setShowAppsModal] = useState(false);
 
   const showUsage = accessStore.isAuthorized();
   useEffect(() => {
@@ -1066,6 +1231,19 @@ export function Settings() {
       </div>
       <div className={styles["settings"]}>
         <List>
+          <ListItem
+            title={"应用配置"}
+            // subTitle={Locale.Settings.Prompt.ListCount(
+            //   builtinCount,
+            //   customCount,
+            // )}
+          >
+            <IconButton
+              icon={<EditIcon />}
+              text={"配置"}
+              onClick={() => setShowAppsModal(true)}
+            />
+          </ListItem>
           <ListItem title={Locale.Settings.Avatar}>
             <Popover
               onClose={() => setShowEmojiPicker(false)}
@@ -1385,6 +1563,10 @@ export function Settings() {
 
         {shouldShowPromptModal && (
           <UserPromptModal onClose={() => setShowPromptModal(false)} />
+        )}
+
+        {shouldShowAppsModal && (
+          <AppsModal onClose={() => setShowAppsModal(false)} />
         )}
 
         <DangerItems />

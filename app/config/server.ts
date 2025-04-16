@@ -1,5 +1,7 @@
 import md5 from "spark-md5";
 import { DEFAULT_MODELS } from "../constant";
+// import { getAllApps } from "../api/app/route"
+import apps from "./apps.json";
 
 declare global {
   namespace NodeJS {
@@ -123,14 +125,15 @@ export const getServerSideConfig = () => {
   //   `[Server Config] using ${randomIndex + 1} of ${apiKeys.length} api key`,
   // );
 
-  const alibabaApps = process.env.ALIBABA_APPS?.split(",")?.map(item => {
-    return {
-      appName: item.split(":")[0],
-      appKey: item.split(":")[1],
-      appId: item.split(":")[2],
-    }
-  }) ?? [];
-
+  // const alibabaApps = process.env.ALIBABA_APPS?.split(",")?.map(item => {
+  //   return {
+  //     appName: item.split(":")[0],
+  //     appKey: item.split(":")[1],
+  //     appId: item.split(":")[2],
+  //   }
+  // }) ?? [];
+  const alibabaApps = apps;
+  // const alibabaApps = getAllApps() ?? [];
 
   const allowedWebDevEndpoints = (
     process.env.WHITE_WEBDEV_ENDPOINTS ?? ""

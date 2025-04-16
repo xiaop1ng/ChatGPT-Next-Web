@@ -82,7 +82,9 @@ export class QwenApi implements LLMApi {
   extractMessage(res: any) {
     // 兼容应用的响应
     if (res?.output?.text) {
-      return res.output.text
+      return res.output.text;
+    } else if (res?.content) {
+      return res.content;
     }
     return res?.output?.choices?.at(0)?.message?.content ?? "";
   }
@@ -103,28 +105,53 @@ export class QwenApi implements LLMApi {
 
     const shouldStream = !!options.config.stream;
     // 不使用通用模型接口时，使用应用的入参
-    const isCustomerApp = getClientConfig()?.alibabaPath;
-    
-    const requestPayload: any = isCustomerApp ? {
-      input: {
-        prompt: getMessageTextContent(options.messages[options.messages.length-1])
-      },
-      parameters: {
-      },
-      debug: {}
-    } : {
-      model: modelConfig.model,
-      input: {
-        messages,
-      },
-      parameters: {
-        result_format: "message",
-        incremental_output: shouldStream,
-        temperature: modelConfig.temperature,
-        // max_tokens: modelConfig.max_tokens,
-        top_p: modelConfig.top_p === 1 ? 0.99 : modelConfig.top_p, // qwen top_p is should be < 1
-      },
-    };
+    const alibabaPath = getClientConfig()?.alibabaPath;
+
+    let requestPayload: any = alibabaPath
+      ? {
+          input: {
+            prompt: getMessageTextContent(
+              options.messages[options.messages.length - 1],
+            ),
+          },
+          parameters: {},
+          debug: {},
+        }
+      : {
+          model: modelConfig.model,
+          input: {
+            messages,
+          },
+          parameters: {
+            result_format: "message",
+            incremental_output: shouldStream,
+            temperature: modelConfig.temperature,
+            // max_tokens: modelConfig.max_tokens,
+            top_p: modelConfig.top_p === 1 ? 0.99 : modelConfig.top_p, // qwen top_p is should be < 1
+          },
+        };
+
+    if (alibabaPath?.startsWith("/bot")) {
+      // 通义千问
+      requestPayload = {
+        botId: "n24e2v7amj",
+        userContent: getMessageTextContent(
+          options.messages[options.messages.length - 1],
+        ),
+      };
+    } else if (alibabaPath?.startsWith("/chat-messages")) {
+      // dify
+      requestPayload = {
+        query: getMessageTextContent(
+          options.messages[options.messages.length - 1],
+        ),
+        inputs: {},
+        response_mode: "streaming",
+        conversation_id: "",
+        user: "abc-123",
+        files: [],
+      };
+    }
 
     const controller = new AbortController();
     options.onController?.(controller);
@@ -230,7 +257,11 @@ export class QwenApi implements LLMApi {
             }
           },
           onmessage(msg) {
-            if (msg.data === "[DONE]" || finished) {
+            if (
+              msg.data === "[DONE]" ||
+              finished ||
+              msg.event == "message_end"
+            ) {
               return finish();
             }
             const text = msg.data;
@@ -245,20 +276,34 @@ export class QwenApi implements LLMApi {
                   remainText += delta;
                 }
               } else if (json?.output?.text) {
-                const delta = json.output.text.substring(lastRemainText.length)
+                const delta = json.output.text.substring(lastRemainText.length);
                 if (delta) {
                   remainText += delta;
                 }
-                lastRemainText = json.output.text
+                lastRemainText = json.output.text;
 
                 if (json?.output?.finish_reason === "stop") {
                   // 输出完成后检查是否存在引用信息
-                  if(json?.output?.doc_references?.length > 0) {
-                    const deltaRef = "\n\n<ref>回答来源：</ref>\n" + json.output.doc_references.map((itemRef: any) => {
-                      return `<button text="${itemRef.text}" title="${itemRef.doc_name}">[${itemRef.index_id}]${itemRef.doc_name}</button>`
-                    }).join("\n")
-                    remainText += deltaRef
+                  if (json?.output?.doc_references?.length > 0) {
+                    const deltaRef =
+                      "\n\n<ref>回答来源：</ref>\n" +
+                      json.output.doc_references
+                        .map((itemRef: any) => {
+                          return `<button text="${itemRef.text}" title="${itemRef.doc_name}">[${itemRef.index_id}]${itemRef.doc_name}</button>`;
+                        })
+                        .join("\n");
+                    remainText += deltaRef;
                   }
+                }
+              } else if (json?.content) {
+                const delta = json?.content;
+                if (delta) {
+                  remainText += delta;
+                }
+              } else if (json?.answer) {
+                const delta = json?.answer;
+                if (delta) {
+                  remainText += delta;
                 }
               }
             } catch (e) {

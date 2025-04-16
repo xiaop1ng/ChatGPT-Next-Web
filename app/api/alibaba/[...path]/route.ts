@@ -68,7 +68,9 @@ async function request(req: NextRequest) {
   const controller = new AbortController();
 
   // alibaba use base url or just remove the path
-  let path = serverConfig.alibabaPath || `${req.nextUrl.pathname}`.replaceAll(ApiPath.Alibaba, "");
+  let path =
+    serverConfig.alibabaPath ||
+    `${req.nextUrl.pathname}`.replaceAll(ApiPath.Alibaba, "");
 
   let baseUrl = serverConfig.alibabaUrl || ALIBABA_BASE_URL;
 
@@ -83,10 +85,14 @@ async function request(req: NextRequest) {
   // 如果设置了 APPS，使用 APPS 里面的 api_key app_id
   if (serverConfig.alibabaApps?.length > 0) {
     const appIdx = req.headers.get("App-Idx");
-    if (appIdx && appIdx !== "-1" && parseInt(appIdx) < serverConfig.alibabaApps.length) {
+    if (
+      appIdx &&
+      appIdx !== "-1" &&
+      parseInt(appIdx) < serverConfig.alibabaApps.length
+    ) {
       const app = serverConfig.alibabaApps[parseInt(appIdx)];
-      path = `/v1/apps/${app.appId}/completion`
-      req.headers.set("Authorization", `Bearer ${app.appKey}`)
+      if (!path) path = `/v1/apps/${app.appId}/completion`;
+      req.headers.set("Authorization", `Bearer ${app.appKey}`);
     }
   }
 

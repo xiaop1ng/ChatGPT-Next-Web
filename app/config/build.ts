@@ -1,5 +1,7 @@
 import tauriConfig from "../../src-tauri/tauri.conf.json";
 import { DEFAULT_INPUT_TEMPLATE } from "../constant";
+// import { getAllApps } from "../api/app/route"
+import apps from "./apps.json";
 
 export const getBuildConfig = () => {
   if (typeof process === "undefined") {
@@ -8,13 +10,14 @@ export const getBuildConfig = () => {
     );
   }
 
-  const alibabaApps = process.env.ALIBABA_APPS?.split(",")?.map(item => {
-    return {
-      appName: item.split(":")[0],
-      // appKey: item.split(":")[1],
-      // appId: item.split(":")[2],
-    }
-  }) ?? [];
+  // const alibabaApps = process.env.ALIBABA_APPS?.split(",")?.map(item => {
+  //   return {
+  //     appName: item.split(":")[0],
+  //     appKey: item.split(":")[1],
+  //   }
+  // }) ?? [];
+  const alibabaApps = apps;
+  // const alibabaApps = getAllApps() ?? [];
   const buildMode = process.env.BUILD_MODE ?? "standalone";
   const isApp = !!process.env.BUILD_APP;
   const version = "v" + tauriConfig.package.version;

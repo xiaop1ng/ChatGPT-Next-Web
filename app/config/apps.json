@@ -1,0 +1,20 @@
+[
+  {
+    "appId": "1743499253986",
+    "type": "dify",
+    "appName": "东方财富News",
+    "appKey": "app-S6ZCEwuiAJm4rqxgNok58Pos"
+  },
+  {
+    "type": "dify",
+    "appName": "考公问答",
+    "appKey": "app-VmyPLL4ewNo4miwk4qL59b6p",
+    "appId": "1743500000395"
+  },
+  {
+    "type": "dify",
+    "appName": "营销图片生成",
+    "appKey": "app-RKBUBoM7XNFc7WUdRepkYjGc",
+    "appId": "1743556080444"
+  }
+]
